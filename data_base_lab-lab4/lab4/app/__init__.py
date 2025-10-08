@@ -43,8 +43,8 @@ def create_app(app_config: dict, additional_config: dict = None) -> Flask:
             create_database(app.config["SQLALCHEMY_DATABASE_URI"])
         db.create_all()
     
-    # Реєструємо routes
     from my_project.auth.route import register_routes
     register_routes(app)
     
     return app
+
