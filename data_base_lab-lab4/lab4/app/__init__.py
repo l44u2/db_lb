@@ -14,19 +14,36 @@ def create_app(app_config: dict, additional_config: dict = None) -> Flask:
     
     db.init_app(app)
     
-    Swagger(app, template={
+    swagger_config = {
+        "headers": [],
+        "specs": [
+            {
+                "endpoint": 'apispec',
+                "route": '/apispec.json',
+            }
+        ],
+        "static_url_path": "/flaggger_static",
+        "swagger_ui": True,
+        "specs_route": "/apidocs/"
+    }
+    
+    swagger_template = {
         "info": {
             "title": "Event Management API",
-            "description": "API for managing events, animators, agencies",
+            "description": "API for managing events, animators, agencies, and locations",
             "version": "1.0.0"
-        }
-    })
+        },
+        "schemes": ["http", "https"]
+    }
+    
+    Swagger(app, config=swagger_config, template=swagger_template)
     
     with app.app_context():
         if not database_exists(app.config["SQLALCHEMY_DATABASE_URI"]):
             create_database(app.config["SQLALCHEMY_DATABASE_URI"])
         db.create_all()
     
+    # Реєструємо routes
     from my_project.auth.route import register_routes
     register_routes(app)
     
