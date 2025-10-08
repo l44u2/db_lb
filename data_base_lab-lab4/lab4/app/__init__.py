@@ -14,35 +14,20 @@ def create_app(app_config: dict, additional_config: dict = None) -> Flask:
     
     db.init_app(app)
     
-    swagger_config = {
-        "headers": [],
-        "specs": [
-            {
-                "endpoint": 'apispec',
-                "route": '/apispec.json',
-            }
-        ],
-        "static_url_path": "/flasgger_static",
-        "swagger_ui": True,
-        "specs_route": "/apidocs/"
-    }
-    
-    Swagger(app, config=swagger_config)
+    Swagger(app, template={
+        "info": {
+            "title": "Event Management API",
+            "description": "API for managing events, animators, agencies",
+            "version": "1.0.0"
+        }
+    })
     
     with app.app_context():
         if not database_exists(app.config["SQLALCHEMY_DATABASE_URI"]):
             create_database(app.config["SQLALCHEMY_DATABASE_URI"])
         db.create_all()
     
-    from my_project.auth import route
-    register_routes(app, route)
+    from my_project.auth.route import register_routes
+    register_routes(app)
     
     return app
-
-def register_routes(app, route_module):
-    import inspect
-    from flask import Blueprint
-    
-    for name, obj in inspect.getmembers(route_module):
-        if isinstance(obj, Blueprint):
-            app.register_blueprint(obj)
