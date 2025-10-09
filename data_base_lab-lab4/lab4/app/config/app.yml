@@ -7,11 +7,11 @@ development:
   DEBUG: True
 #  SQLALCHEMY_DATABASE_URI: 'sqlite://'
 #  SQLALCHEMY_DATABASE_URI: 'sqlite:///device_db.sqlite'
-  SQLALCHEMY_DATABASE_URI: 'mysql+pymysql://lab1db:Helloworld25@lab1-121-db.mysql.database.azure.com:3306/lab4?ssl_disabled=true'
+  SQLALCHEMY_DATABASE_URI: 'mysql+pymysql://lab1db:Helloworld25@lab1-121-db.mysql.database.azure.com:3306/lab4?ssl_ca=/etc/ssl/certs/ca-certificates.crt'
 
 production:
   <<: *common
-  SQLALCHEMY_DATABASE_URI: 'mysql+pymysql://lab1db:Helloworld25@lab1-121-db.mysql.database.azure.com:3306/lab4?ssl_disabled=true'
+  SQLALCHEMY_DATABASE_URI: 'mysql+pymysql://lab1db:Helloworld25@lab1-121-db.mysql.database.azure.com:3306/lab4?ssl_ca=/etc/ssl/certs/ca-certificates.crt'
 
 ADDITIONAL_CONFIG:
   MYSQL_ROOT_USER: lab1db
