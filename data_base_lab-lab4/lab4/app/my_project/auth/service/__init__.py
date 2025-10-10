@@ -1,4 +1,3 @@
-# __init__.py
 from .orders.animator_service import AnimatorService
 from .orders.agency_service import AgencyService
 from .orders.event_service import EventService

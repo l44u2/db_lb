@@ -1,4 +1,3 @@
-# event_service.py 
 from typing import List
 from my_project.auth.dao import event_dao
 from my_project.auth.service.general_service import GeneralService

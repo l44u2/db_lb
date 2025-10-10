@@ -53,24 +53,6 @@ def create_event_type() -> Response:
     type_dto = {"id": row[0], "type": row[1]}
     return make_response(jsonify(type_dto), HTTPStatus.CREATED)
 
-@event_type_bp.get('/<int:type_id>')
-@swag_from({
-    'tags': ['EventType'],
-    'summary': 'Get event type by ID',
-    'parameters': [{'name': 'type_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'Event type'}, 404: {'description': 'Not found'}}
-})
-def get_event_type(type_id: int) -> Response:
-    result = db.session.execute("""
-        SELECT id, `type` FROM `type`
-        WHERE id = :id
-    """, {'id': type_id})
-    row = result.fetchone()
-    if row is None:
-        return make_response("Not found", HTTPStatus.NOT_FOUND)
-    event_type = {"id": row[0], "type": row[1]}
-    return make_response(jsonify(event_type), HTTPStatus.OK)
-
 @event_type_bp.put('/<int:type_id>')
 @swag_from({
     'tags': ['EventType'],
@@ -90,26 +72,6 @@ def update_event_type(type_id: int) -> Response:
     content = request.get_json()
     event_type = EventType.create_from_dto(content)
     event_type_controller.update(type_id, event_type)
-    return make_response("Event type updated", HTTPStatus.OK)
-
-@event_type_bp.patch('/<int:type_id>')
-@swag_from({
-    'tags': ['EventType'],
-    'summary': 'Partially update event type',
-    'parameters': [
-        {'name': 'type_id', 'in': 'path', 'type': 'integer', 'required': True},
-        {'name': 'body', 'in': 'body', 'required': True, 'schema': {
-            'type': 'object',
-            'properties': {
-                'type': {'type': 'string', 'example': 'Wedding'}
-            }
-        }}
-    ],
-    'responses': {200: {'description': 'Updated'}}
-})
-def patch_event_type(type_id: int) -> Response:
-    content = request.get_json()
-    event_type_controller.patch(type_id, content)
     return make_response("Event type updated", HTTPStatus.OK)
 
 @event_type_bp.delete('/<int:type_id>')

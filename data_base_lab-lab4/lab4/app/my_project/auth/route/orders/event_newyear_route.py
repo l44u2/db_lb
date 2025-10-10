@@ -15,37 +15,3 @@ event_newyear_controller = EventNewYearController()
 })
 def get_all_event_newyear() -> Response:
     return make_response(jsonify(event_newyear_controller.find_all()), HTTPStatus.OK)
-
-@event_newyear_bp.get('/event/<int:event_id>')
-@swag_from({
-    'tags': ['EventNewyear'],
-    'summary': 'Get Newyear mapping by Event ID',
-    'parameters': [{'name': 'event_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'List of Newyear IDs for the given Event'}}
-})
-def get_newyear_by_event(event_id: int) -> Response:
-    return make_response(jsonify(event_newyear_controller.get_newyear_after_event(event_id)), HTTPStatus.OK)
-
-@event_newyear_bp.get('/newyear/<int:newyear_id>')
-@swag_from({
-    'tags': ['EventNewyear'],
-    'summary': 'Get Event mapping by Newyear ID',
-    'parameters': [{'name': 'newyear_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'List of Event IDs for the given Newyear'}}
-})
-def get_event_by_newyear(newyear_id: int) -> Response:
-    return make_response(jsonify(event_newyear_controller.get_event_after_newyear(newyear_id)), HTTPStatus.OK)
-
-@event_newyear_bp.delete('/<int:event_id>/<int:newyear_id>')
-@swag_from({
-    'tags': ['EventNewyear'],
-    'summary': 'Delete Event-Newyear mapping',
-    'parameters': [
-        {'name': 'event_id', 'in': 'path', 'type': 'integer', 'required': True},
-        {'name': 'newyear_id', 'in': 'path', 'type': 'integer', 'required': True}
-    ],
-    'responses': {200: {'description': 'Mapping deleted successfully'}}
-})
-def delete_event_newyear(event_id: int, newyear_id: int) -> Response:
-    event_newyear_controller.delete_by_ids(event_id, newyear_id)
-    return make_response("Event newyear mapping deleted", HTTPStatus.OK)

@@ -56,25 +56,6 @@ def create_firstsep() -> Response:
     firstsep_dto = {"id": row[0], "event_date": str(row[1]), "duration": str(row[2]), "value": float(row[3])}
     return make_response(jsonify(firstsep_dto), HTTPStatus.CREATED)
 
-@firstsep_bp.get('/<int:firstsep_id>')
-@swag_from({
-    'tags': ['FirstSep'],
-    'summary': 'Get First September event by ID',
-    'parameters': [{'name': 'firstsep_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'First September event'}, 404: {'description': 'Not found'}}
-})
-def get_firstsep(firstsep_id: int) -> Response:
-    result = db.session.execute("""
-        SELECT id, event_date, duration, value
-        FROM firstsep
-        WHERE id = :id
-    """, {'id': firstsep_id})
-    row = result.fetchone()
-    if row is None:
-        return make_response("Not found", HTTPStatus.NOT_FOUND)
-    firstsep = {"id": row[0], "event_date": str(row[1]), "duration": str(row[2]), "value": float(row[3])}
-    return make_response(jsonify(firstsep), HTTPStatus.OK)
-
 @firstsep_bp.put('/<int:firstsep_id>')
 @swag_from({
     'tags': ['FirstSep'],
@@ -96,28 +77,6 @@ def update_firstsep(firstsep_id: int) -> Response:
     content = request.get_json()
     firstsep = FirstSep.create_from_dto(content)
     firstsep_controller.update(firstsep_id, firstsep)
-    return make_response("First September event updated", HTTPStatus.OK)
-
-@firstsep_bp.patch('/<int:firstsep_id>')
-@swag_from({
-    'tags': ['FirstSep'],
-    'summary': 'Partially update First September event',
-    'parameters': [
-        {'name': 'firstsep_id', 'in': 'path', 'type': 'integer', 'required': True},
-        {'name': 'body', 'in': 'body', 'required': True, 'schema': {
-            'type': 'object',
-            'properties': {
-                'event_date': {'type': 'string', 'example': '2025-09-01'},
-                'duration': {'type': 'string', 'example': '02:00:00'},
-                'value': {'type': 'number', 'example': 500.00}
-            }
-        }}
-    ],
-    'responses': {200: {'description': 'Updated'}}
-})
-def patch_firstsep(firstsep_id: int) -> Response:
-    content = request.get_json()
-    firstsep_controller.patch(firstsep_id, content)
     return make_response("First September event updated", HTTPStatus.OK)
 
 @firstsep_bp.delete('/<int:firstsep_id>')

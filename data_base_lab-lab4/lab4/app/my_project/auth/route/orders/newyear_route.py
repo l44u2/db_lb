@@ -56,25 +56,6 @@ def create_newyear() -> Response:
     newyear_dto = {"id": row[0], "event_date": str(row[1]), "duration": str(row[2]), "value": float(row[3])}
     return make_response(jsonify(newyear_dto), HTTPStatus.CREATED)
 
-@newyear_bp.get('/<int:newyear_id>')
-@swag_from({
-    'tags': ['NewYear'],
-    'summary': 'Get New Year event by ID',
-    'parameters': [{'name': 'newyear_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'New Year event'}, 404: {'description': 'Not found'}}
-})
-def get_newyear(newyear_id: int) -> Response:
-    result = db.session.execute("""
-        SELECT id, event_date, duration, value
-        FROM newyear
-        WHERE id = :id
-    """, {'id': newyear_id})
-    row = result.fetchone()
-    if row is None:
-        return make_response("Not found", HTTPStatus.NOT_FOUND)
-    newyear = {"id": row[0], "event_date": str(row[1]), "duration": str(row[2]), "value": float(row[3])}
-    return make_response(jsonify(newyear), HTTPStatus.OK)
-
 @newyear_bp.put('/<int:newyear_id>')
 @swag_from({
     'tags': ['NewYear'],
@@ -96,28 +77,6 @@ def update_newyear(newyear_id: int) -> Response:
     content = request.get_json()
     newyear = NewYear.create_from_dto(content)
     newyear_controller.update(newyear_id, newyear)
-    return make_response("New Year event updated", HTTPStatus.OK)
-
-@newyear_bp.patch('/<int:newyear_id>')
-@swag_from({
-    'tags': ['NewYear'],
-    'summary': 'Partially update New Year event',
-    'parameters': [
-        {'name': 'newyear_id', 'in': 'path', 'type': 'integer', 'required': True},
-        {'name': 'body', 'in': 'body', 'required': True, 'schema': {
-            'type': 'object',
-            'properties': {
-                'event_date': {'type': 'string', 'example': '2025-12-31'},
-                'duration': {'type': 'string', 'example': '04:00:00'},
-                'value': {'type': 'number', 'example': 1000.00}
-            }
-        }}
-    ],
-    'responses': {200: {'description': 'Updated'}}
-})
-def patch_newyear(newyear_id: int) -> Response:
-    content = request.get_json()
-    newyear_controller.patch(newyear_id, content)
     return make_response("New Year event updated", HTTPStatus.OK)
 
 @newyear_bp.delete('/<int:newyear_id>')

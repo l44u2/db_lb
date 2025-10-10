@@ -15,7 +15,7 @@ agency_bp = Blueprint('agencies', __name__, url_prefix='/api/agencies')
 })
 def get_all_agencies() -> Response:
     result = db.session.execute("""
-        SELECT agency.id, agency.name, agency.speciality_id, speciality.speicality_type as speciality_type
+        SELECT agency.id, agency.name, agency.speciality_id, speciality.speicality_type
         FROM agency
         JOIN speciality ON agency.speciality_id = speciality.id
     """)
@@ -48,7 +48,7 @@ def create_agency() -> Response:
     agency = Agency.create_from_dto(content)
     agency_controller.create(agency)
     result = db.session.execute("""
-        SELECT agency.id, agency.name, agency.speciality_id, speciality.speicality_type as speciality_type
+        SELECT agency.id, agency.name, agency.speciality_id, speciality.speciality_type
         FROM agency
         JOIN speciality ON agency.speciality_id = speciality.id
         WHERE agency.id = :id
@@ -56,26 +56,6 @@ def create_agency() -> Response:
     row = result.fetchone()
     agency_dto = {"id": row[0], "name": row[1], "speciality_id": row[2], "speciality_type": row[3]}
     return make_response(jsonify(agency_dto), HTTPStatus.CREATED)
-
-@agency_bp.get('/<int:agency_id>')
-@swag_from({
-    'tags': ['Agency'],
-    'summary': 'Get agency by ID',
-    'parameters': [{'name': 'agency_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'Agency'}, 404: {'description': 'Not found'}}
-})
-def get_agency(agency_id: int) -> Response:
-    result = db.session.execute("""
-        SELECT agency.id, agency.name, agency.speciality_id, speciality.speicality_type as speciality_type
-        FROM agency
-        JOIN speciality ON agency.speciality_id = speciality.id
-        WHERE agency.id = :id
-    """, {'id': agency_id})
-    row = result.fetchone()
-    if row is None:
-        return make_response("Not found", HTTPStatus.NOT_FOUND)
-    agency = {"id": row[0], "name": row[1], "speciality_id": row[2], "speciality_type": row[3]}
-    return make_response(jsonify(agency), HTTPStatus.OK)
 
 @agency_bp.put('/<int:agency_id>')
 @swag_from({
@@ -103,23 +83,3 @@ def update_agency(agency_id: int) -> Response:
 def delete_agency(agency_id: int) -> Response:
     agency_controller.delete(agency_id)
     return make_response("Agency deleted", HTTPStatus.OK)
-
-@agency_bp.get('/get-agency-by-speciality/<int:speciality_id>')
-@swag_from({
-    'tags': ['Agency'],
-    'summary': 'Get agencies by speciality',
-    'parameters': [{'name': 'speciality_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'Agencies with this speciality'}}
-})
-def get_agency_by_speciality(speciality_id: int) -> Response:
-    result = db.session.execute("""
-        SELECT agency.id, agency.name, agency.speciality_id, speciality.speicality_type as speciality_type
-        FROM agency
-        JOIN speciality ON agency.speciality_id = speciality.id
-        WHERE agency.speciality_id = :sid
-    """, {'sid': speciality_id})
-    agencies = [
-        {"id": row[0], "name": row[1], "speciality_id": row[2], "speciality_type": row[3]}
-        for row in result.fetchall()
-    ]
-    return make_response(jsonify(agencies), HTTPStatus.OK)

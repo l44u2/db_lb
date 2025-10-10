@@ -55,25 +55,6 @@ def create_location() -> Response:
     location_dto = {"id": row[0], "house": row[1], "street": row[2]}
     return make_response(jsonify(location_dto), HTTPStatus.CREATED)
 
-@location_bp.get('/<int:location_id>')
-@swag_from({
-    'tags': ['Location'],
-    'summary': 'Get location by ID',
-    'parameters': [{'name': 'location_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'Location'}, 404: {'description': 'Not found'}}
-})
-def get_location(location_id: int) -> Response:
-    result = db.session.execute("""
-        SELECT id, house, street
-        FROM location
-        WHERE id = :id
-    """, {'id': location_id})
-    row = result.fetchone()
-    if row is None:
-        return make_response("Not found", HTTPStatus.NOT_FOUND)
-    location = {"id": row[0], "house": row[1], "street": row[2]}
-    return make_response(jsonify(location), HTTPStatus.OK)
-
 @location_bp.put('/<int:location_id>')
 @swag_from({
     'tags': ['Location'],
@@ -94,27 +75,6 @@ def update_location(location_id: int) -> Response:
     content = request.get_json()
     location = Location.create_from_dto(content)
     location_controller.update(location_id, location)
-    return make_response("Location updated", HTTPStatus.OK)
-
-@location_bp.patch('/<int:location_id>')
-@swag_from({
-    'tags': ['Location'],
-    'summary': 'Partially update location',
-    'parameters': [
-        {'name': 'location_id', 'in': 'path', 'type': 'integer', 'required': True},
-        {'name': 'body', 'in': 'body', 'required': True, 'schema': {
-            'type': 'object',
-            'properties': {
-                'house': {'type': 'string', 'example': '123'},
-                'street': {'type': 'string', 'example': 'Main St'}
-            }
-        }}
-    ],
-    'responses': {200: {'description': 'Updated'}}
-})
-def patch_location(location_id: int) -> Response:
-    content = request.get_json()
-    location_controller.patch(location_id, content)
     return make_response("Location updated", HTTPStatus.OK)
 
 @location_bp.delete('/<int:location_id>')

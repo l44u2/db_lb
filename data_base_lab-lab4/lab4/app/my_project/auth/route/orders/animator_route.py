@@ -39,16 +39,6 @@ def create_animator() -> Response:
     animator_controller.create(animator)
     return make_response(jsonify(animator.put_into_dto()), HTTPStatus.CREATED)
 
-@animator_bp.get('/<int:animator_id>')
-@swag_from({
-    'tags': ['Animator'],
-    'summary': 'Get animator by ID',
-    'parameters': [{'name': 'animator_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'Animator'}, 404: {'description': 'Not found'}}
-})
-def get_animator(animator_id: int) -> Response:
-    return make_response(jsonify(animator_controller.find_by_id(animator_id)), HTTPStatus.OK)
-
 @animator_bp.put('/<int:animator_id>')
 @swag_from({
     'tags': ['Animator'],

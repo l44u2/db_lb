@@ -56,25 +56,6 @@ def create_wedding() -> Response:
     wedding_dto = {"id": row[0], "event_date": str(row[1]), "duration": str(row[2]), "value": float(row[3])}
     return make_response(jsonify(wedding_dto), HTTPStatus.CREATED)
 
-@wedding_bp.get('/<int:wedding_id>')
-@swag_from({
-    'tags': ['Wedding'],
-    'summary': 'Get wedding by ID',
-    'parameters': [{'name': 'wedding_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'Wedding'}, 404: {'description': 'Not found'}}
-})
-def get_wedding(wedding_id: int) -> Response:
-    result = db.session.execute("""
-        SELECT id, event_date, duration, value
-        FROM wedding
-        WHERE id = :id
-    """, {'id': wedding_id})
-    row = result.fetchone()
-    if row is None:
-        return make_response("Not found", HTTPStatus.NOT_FOUND)
-    wedding = {"id": row[0], "event_date": str(row[1]), "duration": str(row[2]), "value": float(row[3])}
-    return make_response(jsonify(wedding), HTTPStatus.OK)
-
 @wedding_bp.put('/<int:wedding_id>')
 @swag_from({
     'tags': ['Wedding'],
@@ -96,28 +77,6 @@ def update_wedding(wedding_id: int) -> Response:
     content = request.get_json()
     wedding = Wedding.create_from_dto(content)
     wedding_controller.update(wedding_id, wedding)
-    return make_response("Wedding updated", HTTPStatus.OK)
-
-@wedding_bp.patch('/<int:wedding_id>')
-@swag_from({
-    'tags': ['Wedding'],
-    'summary': 'Partially update wedding',
-    'parameters': [
-        {'name': 'wedding_id', 'in': 'path', 'type': 'integer', 'required': True},
-        {'name': 'body', 'in': 'body', 'required': True, 'schema': {
-            'type': 'object',
-            'properties': {
-                'event_date': {'type': 'string', 'example': '2025-07-20'},
-                'duration': {'type': 'string', 'example': '05:00:00'},
-                'value': {'type': 'number', 'example': 2000.00}
-            }
-        }}
-    ],
-    'responses': {200: {'description': 'Updated'}}
-})
-def patch_wedding(wedding_id: int) -> Response:
-    content = request.get_json()
-    wedding_controller.patch(wedding_id, content)
     return make_response("Wedding updated", HTTPStatus.OK)
 
 @wedding_bp.delete('/<int:wedding_id>')

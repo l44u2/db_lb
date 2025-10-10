@@ -78,19 +78,6 @@ def create_birthday() -> Response:
     birthday_controller.create(birthday)
     return make_response(jsonify(_to_serializable(birthday.put_into_dto())), HTTPStatus.CREATED)
 
-
-@birthday_bp.get('/<int:birthday_id>')
-@swag_from({
-    'tags': ['Birthday'],
-    'summary': 'Get birthday by ID',
-    'parameters': [{'name': 'birthday_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'Birthday'}, 404: {'description': 'Not found'}}
-})
-def get_birthday(birthday_id: int) -> Response:
-    raw = birthday_controller.find_by_id(birthday_id)
-    return make_response(jsonify(_to_serializable(raw)), HTTPStatus.OK)
-
-
 @birthday_bp.put('/<int:birthday_id>')
 @swag_from({
     'tags': ['Birthday'],
@@ -106,23 +93,6 @@ def update_birthday(birthday_id: int) -> Response:
     birthday = Birthday.create_from_dto(content)
     birthday_controller.update(birthday_id, birthday)
     return make_response("Birthday updated", HTTPStatus.OK)
-
-
-@birthday_bp.patch('/<int:birthday_id>')
-@swag_from({
-    'tags': ['Birthday'],
-    'summary': 'Patch birthday (partial update)',
-    'parameters': [
-        {'name': 'birthday_id', 'in': 'path', 'type': 'integer', 'required': True},
-        {'name': 'body', 'in': 'body', 'required': True, 'schema': {'type': 'object'}}
-    ],
-    'responses': {200: {'description': 'Patched'}}
-})
-def patch_birthday(birthday_id: int) -> Response:
-    content = request.get_json()
-    birthday_controller.patch(birthday_id, content)
-    return make_response("Birthday updated", HTTPStatus.OK)
-
 
 @birthday_bp.delete('/<int:birthday_id>')
 @swag_from({

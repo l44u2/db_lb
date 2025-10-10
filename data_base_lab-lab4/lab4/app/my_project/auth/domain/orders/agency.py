@@ -23,7 +23,7 @@ class Agency(db.Model, IDto):
             "id": self.id,
             "name": self.name,
             "speciality_id": self.speciality_id,
-            "speciality_type": self.speciality.speciality_type,
+            "speciality_type": self.speciality.speicality_type,
         }
 
     @staticmethod

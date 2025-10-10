@@ -56,25 +56,6 @@ def create_kidparty() -> Response:
     kidparty_dto = {"id": row[0], "event_date": str(row[1]), "duration": str(row[2]), "value": float(row[3])}
     return make_response(jsonify(kidparty_dto), HTTPStatus.CREATED)
 
-@kidparty_bp.get('/<int:kidparty_id>')
-@swag_from({
-    'tags': ['KidParty'],
-    'summary': 'Get kid party by ID',
-    'parameters': [{'name': 'kidparty_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'Kid party'}, 404: {'description': 'Not found'}}
-})
-def get_kidparty(kidparty_id: int) -> Response:
-    result = db.session.execute("""
-        SELECT id, event_date, duration, value
-        FROM kidparty
-        WHERE id = :id
-    """, {'id': kidparty_id})
-    row = result.fetchone()
-    if row is None:
-        return make_response("Not found", HTTPStatus.NOT_FOUND)
-    kidparty = {"id": row[0], "event_date": str(row[1]), "duration": str(row[2]), "value": float(row[3])}
-    return make_response(jsonify(kidparty), HTTPStatus.OK)
-
 @kidparty_bp.put('/<int:kidparty_id>')
 @swag_from({
     'tags': ['KidParty'],
@@ -96,28 +77,6 @@ def update_kidparty(kidparty_id: int) -> Response:
     content = request.get_json()
     kidparty = KidParty.create_from_dto(content)
     kidparty_controller.update(kidparty_id, kidparty)
-    return make_response("Kid party updated", HTTPStatus.OK)
-
-@kidparty_bp.patch('/<int:kidparty_id>')
-@swag_from({
-    'tags': ['KidParty'],
-    'summary': 'Partially update kid party',
-    'parameters': [
-        {'name': 'kidparty_id', 'in': 'path', 'type': 'integer', 'required': True},
-        {'name': 'body', 'in': 'body', 'required': True, 'schema': {
-            'type': 'object',
-            'properties': {
-                'event_date': {'type': 'string', 'example': '2025-06-15'},
-                'duration': {'type': 'string', 'example': '03:00:00'},
-                'value': {'type': 'number', 'example': 300.00}
-            }
-        }}
-    ],
-    'responses': {200: {'description': 'Updated'}}
-})
-def patch_kidparty(kidparty_id: int) -> Response:
-    content = request.get_json()
-    kidparty_controller.patch(kidparty_id, content)
     return make_response("Kid party updated", HTTPStatus.OK)
 
 @kidparty_bp.delete('/<int:kidparty_id>')

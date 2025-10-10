@@ -77,19 +77,6 @@ def create_christmass() -> Response:
     christmass_controller.create(christmass)
     return make_response(jsonify(_to_serializable(christmass.put_into_dto())), HTTPStatus.CREATED)
 
-
-@christmass_bp.get('/<int:christmass_id>')
-@swag_from({
-    'tags': ['Christmass'],
-    'summary': 'Get Christmas event by ID',
-    'parameters': [{'name': 'christmass_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'Christmas event'}, 404: {'description': 'Not found'}}
-})
-def get_christmass(christmass_id: int) -> Response:
-    raw = christmass_controller.find_by_id(christmass_id)
-    return make_response(jsonify(_to_serializable(raw)), HTTPStatus.OK)
-
-
 @christmass_bp.put('/<int:christmass_id>')
 @swag_from({
     'tags': ['Christmass'],
@@ -117,35 +104,6 @@ def update_christmass(christmass_id: int) -> Response:
     christmass = Christmass.create_from_dto(content)
     christmass_controller.update(christmass_id, christmass)
     return make_response("Christmas event updated", HTTPStatus.OK)
-
-
-@christmass_bp.patch('/<int:christmass_id>')
-@swag_from({
-    'tags': ['Christmass'],
-    'summary': 'Patch Christmas event (partial update)',
-    'parameters': [
-        {'name': 'christmass_id', 'in': 'path', 'type': 'integer', 'required': True},
-        {
-            'name': 'body',
-            'in': 'body',
-            'required': True,
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'event_date': {'type': 'string', 'format': 'date'},
-                    'duration': {'type': 'string'},
-                    'value': {'type': 'number'}
-                }
-            }
-        }
-    ],
-    'responses': {200: {'description': 'Patched'}}
-})
-def patch_christmass(christmass_id: int) -> Response:
-    content = request.get_json()
-    christmass_controller.patch(christmass_id, content)
-    return make_response("Christmas event updated", HTTPStatus.OK)
-
 
 @christmass_bp.delete('/<int:christmass_id>')
 @swag_from({
