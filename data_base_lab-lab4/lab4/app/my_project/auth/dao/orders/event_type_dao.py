@@ -1,88 +1,27 @@
-from http import HTTPStatus
-from flask import Blueprint, jsonify, Response, request, make_response
-from flasgger import swag_from
-from my_project.auth.controller.orders.speciality_controller import SpecialityController
-from my_project.auth.domain.orders.speciality import Speciality
-from my_project import db
+from typing import List, Dict, Any
+from my_project.auth.dao.general_dao import GeneralDAO
+from my_project.auth.domain.orders.event_type import EventType
+import sqlalchemy
 
-speciality_bp = Blueprint('specialities', __name__, url_prefix='/api/specialities')
-speciality_controller = SpecialityController()
+class TypeDAO(GeneralDAO):
+    _domain_type = EventType
 
-@speciality_bp.get('')
-@swag_from({
-    'tags': ['Speciality'],
-    'summary': 'Get all specialities',
-    'responses': {200: {'description': 'List of specialities'}}
-})
-def get_all_specialities() -> Response:
-    result = db.session.execute("""
-        SELECT id, speicality_type
-        FROM speciality
-    """)
-    specialities = [
-        {"id": row[0], "speciality_type": row[1]}
-        for row in result.fetchall()
-    ]
-    return make_response(jsonify(specialities), HTTPStatus.OK)
+    def get_types_by_name(self, type_name: str) -> List[Dict[str, Any]]:
+        result = self._session.execute(
+            sqlalchemy.text("""
+                SELECT * FROM type 
+                WHERE type LIKE :type_name
+            """),
+            {"type_name": f"%{type_name}%"}
+        ).mappings().all()
+        return [dict(row) for row in result]
 
-@speciality_bp.post('')
-@swag_from({
-    'tags': ['Speciality'],
-    'summary': 'Create speciality',
-    'parameters': [{
-        'name': 'body',
-        'in': 'body',
-        'required': True,
-        'schema': {
-            'type': 'object',
-            'properties': {
-                'speciality_type': {'type': 'string', 'example': 'Wedding Planning'}
-            }
-        }
-    }],
-    'responses': {201: {'description': 'Created'}}
-})
-def create_speciality() -> Response:
-    content = request.get_json()
-    speciality = Speciality.create_from_dto(content)
-    speciality_controller.create(speciality)
-    result = db.session.execute("""
-        SELECT id, speicality_type
-        FROM speciality
-        WHERE id = :id
-    """, {'id': speciality.id})
-    row = result.fetchone()
-    speciality_dto = {"id": row[0], "speciality_type": row[1]}
-    return make_response(jsonify(speciality_dto), HTTPStatus.CREATED)
-
-@speciality_bp.put('/<int:speciality_id>')
-@swag_from({
-    'tags': ['Speciality'],
-    'summary': 'Update speciality',
-    'parameters': [
-        {'name': 'speciality_id', 'in': 'path', 'type': 'integer', 'required': True},
-        {'name': 'body', 'in': 'body', 'required': True, 'schema': {
-            'type': 'object',
-            'properties': {
-                'speciality_type': {'type': 'string', 'example': 'Wedding Planning'}
-            }
-        }}
-    ],
-    'responses': {200: {'description': 'Updated'}}
-})
-def update_speciality(speciality_id: int) -> Response:
-    content = request.get_json()
-    speciality = Speciality.create_from_dto(content)
-    speciality_controller.update(speciality_id, speciality)
-    return make_response("Speciality updated", HTTPStatus.OK)
-
-@speciality_bp.delete('/<int:speciality_id>')
-@swag_from({
-    'tags': ['Speciality'],
-    'summary': 'Delete speciality',
-    'parameters': [{'name': 'speciality_id', 'in': 'path', 'type': 'integer', 'required': True}],
-    'responses': {200: {'description': 'Deleted'}}
-})
-def delete_speciality(speciality_id: int) -> Response:
-    speciality_controller.delete(speciality_id)
-    return make_response("Speciality deleted", HTTPStatus.OK)
+    def get_types_with_events(self) -> List[Dict[str, Any]]: 
+        result = self._session.execute(
+            sqlalchemy.text("""
+                SELECT t.* FROM type t
+                JOIN event e ON t.id = e.type_id
+                GROUP BY t.id
+            """)
+        ).mappings().all()
+        return [dict(row) for row in result]
