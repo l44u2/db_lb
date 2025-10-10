@@ -24,5 +24,11 @@ class EventType(db.Model, IDto):
 
     @staticmethod
     def create_from_dto(dto_dict: Dict[str, Any]) -> EventType:
-        obj = EventType(**dto_dict)
+        mapped_dict = {}
+        if 'type' in dto_dict:
+            mapped_dict['type_'] = dto_dict['type']
+        if 'id' in dto_dict:
+            mapped_dict['id'] = dto_dict['id']
+        
+        obj = EventType(**mapped_dict)
         return obj
