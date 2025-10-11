@@ -47,14 +47,16 @@ def create_agency() -> Response:
     content = request.get_json()
     agency = Agency.create_from_dto(content)
     agency_controller.create(agency)
+    
     result = db.session.execute("""
-        SELECT agency.id, agency.name, agency.speciality_id, speciality.speciality_type
+        SELECT agency.id, agency.name, agency.speciality_id, speciality.speicality_type
         FROM agency
         JOIN speciality ON agency.speciality_id = speciality.id
         WHERE agency.id = :id
     """, {'id': agency.id})
     row = result.fetchone()
     agency_dto = {"id": row[0], "name": row[1], "speciality_id": row[2], "speciality_type": row[3]}
+    
     return make_response(jsonify(agency_dto), HTTPStatus.CREATED)
 
 @agency_bp.put('/<int:agency_id>')
