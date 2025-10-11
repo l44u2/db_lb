@@ -17,7 +17,7 @@ jobs:
           key: ${{ secrets.AZURE_SSH_KEY }}
           port: 22
           script: |
-            cd /home/${{ secrets.AZURE_USER }}/lab1ihm/data_base_lab-lab4/lab4/app
+            cd /home/${{ secrets.AZURE_USER }}/lab1ihm/db_lb/data_base_lab-lab4/lab4/app
             git pull origin main
             source venv/bin/activate
             pip install -r requirements.txt
