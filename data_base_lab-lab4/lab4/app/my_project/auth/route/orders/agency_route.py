@@ -7,12 +7,12 @@ from my_project import db
 
 agency_bp = Blueprint('agencies', __name__, url_prefix='/api/agencies')
 
-@agency_bp.get('')
-@swag_from({
-    'tags': ['Agency'],
-    'summary': 'Get all agencies',
-    'responses': {200: {'description': 'List of agencies'}}
-})
+#@agency_bp.get('')
+#@swag_from({
+#    'tags': ['Agency'],
+#    'summary': 'Get all agencies',
+#    'responses': {200: {'description': 'List of agencies'}}
+#})
 def get_all_agencies() -> Response:
     result = db.session.execute("""
         SELECT agency.id, agency.name, agency.speciality_id, speciality.speicality_type
@@ -85,3 +85,4 @@ def update_agency(agency_id: int) -> Response:
 def delete_agency(agency_id: int) -> Response:
     agency_controller.delete(agency_id)
     return make_response("Agency deleted", HTTPStatus.OK)
+
